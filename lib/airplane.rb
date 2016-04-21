@@ -1,23 +1,18 @@
 class Airplane
-  attr_reader :landed
+  attr_reader :flying
 
   def initialize
-    @landed = false
-  end
-
-  def plane_status
-    @landed = !@landed
+    @flying = false
   end
 
   def land_plane!
-    raise 'Plane already landed' if self.landed == true
-    @landed = true
+    raise 'Plane already landed' if self.flying == false
+    @flying = false
   end
 
   def take_off!
-    raise 'Plane already taken off' if self.landed == false
-    self.plane_status
+    raise 'Plane already taken off' if self.flying == true
+    @flying = true
   end
-
 
 end

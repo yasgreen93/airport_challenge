@@ -4,7 +4,7 @@ require_relative 'weather'
 class Airport
 
   DEFAULT_VALUE = 10
-  attr_reader :hangar, :capacity
+  attr_reader :hangar, :planes, :capacity
 
   def initialize(capacity=DEFAULT_VALUE, weather_class)
     @hangar = []
@@ -13,9 +13,11 @@ class Airport
   end
 
   def planes_in_hangar
+    @planes = []
     @hangar.each_with_index do |plane, index|
-      puts "Bay #{index + 1}: #{plane}"
+      planes.push("Bay #{index + 1}: #{plane}")
     end
+    return @planes
   end
 
   def receive(plane)
@@ -27,8 +29,8 @@ class Airport
 
   def send_away(plane)
     raise 'Too stormy to take off' if stormy?
-    plane.take_off!
     raise 'Plane not at that airport' if not_at_that_airport(plane)
+    plane.take_off!
     @hangar.delete(plane)
   end
 

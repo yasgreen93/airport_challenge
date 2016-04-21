@@ -2,14 +2,19 @@ require 'airport'
 
 describe Airport do
   let(:plane1) {double :airplane}
+  let(:plane2) {double :airplane, :flying => true}
   subject(:airport) { described_class.new(Weather) }
   let(:airport2) {described_class.new(Weather)}
+  let(:airport3) {described_class.new(1, Weather)}
 
   before(:each) do
     allow(airport).to receive(:stormy?).and_return(false)
-    allow(plane1).to receive(:landed).and_return(false)
-    allow(plane1).to receive(:take_off!).and_return(false)
-    allow(plane1).to receive(:land_plane!).and_return(true)
+    allow(airport2).to receive(:stormy?).and_return(false)
+    allow(airport3).to receive(:stormy?).and_return(false)
+    allow(plane1).to receive(:flying).and_return(true)
+    allow(plane1).to receive(:take_off!)
+    allow(plane1).to receive(:land_plane!)
+    allow(plane2).to receive(:land_plane!)
   end
 
   describe 'hangar array' do
@@ -18,14 +23,21 @@ describe Airport do
     end
   end
 
-  describe 'receive' do
+  describe '#receive' do
     it 'should push that plane into the hangar array' do
       subject.receive(plane1)
       expect(subject.hangar).to eq [plane1]
     end
+
+    it 'should call plane.take_off! method' do
+      allow(plane1).to receive(:land_plane!)
+      expect(plane1).to receive(:land_plane!)
+      airport.receive(plane1)
+    end
+
   end
 
-  describe 'send_away' do
+  describe '#send_away' do
     it 'should remove that plane from the hangar array' do
       airport.receive(plane1)
       airport.send_away(plane1)
@@ -35,7 +47,14 @@ describe Airport do
     it 'should not allow take off from an airport it is not at' do
       airport.hangar << plane1
       message = 'Plane not at that airport'
-      expect{ airport2.send_away(plane1)}
+      expect{ airport2.send_away(plane1) }.to raise_error message
+    end
+
+    it 'should call plane.take_off! method' do
+      allow(plane1).to receive(:take_off!)
+      airport.receive(plane1)
+      expect(plane1).to receive(:take_off!)
+      airport.send_away(plane1)
     end
   end
 
@@ -46,9 +65,9 @@ describe Airport do
 
 
     it 'should raise an error when the airport is full' do
-      10.times {airport.receive(Airplane.new)}
+      airport3.receive(plane2)
       message = 'Airport is full'
-      expect{ airport.receive(plane1) }.to raise_error message
+      expect{ airport3.receive(plane1) }.to raise_error message
     end
 
     it 'should set a capacity if initialized with an argument' do
@@ -69,6 +88,13 @@ describe Airport do
       allow(airport).to receive(:stormy?).and_return(true)
       message = 'Too stormy to take off'
       expect{ airport.send_away(plane1) }.to raise_error message
+    end
+  end
+
+  describe '#planes_in_hangar' do
+    it 'should return a list of planes in the hangar' do
+      airport.receive(plane1)
+      expect(airport.planes_in_hangar).to eq (["Bay 1: #{plane1}"])
     end
   end
 
