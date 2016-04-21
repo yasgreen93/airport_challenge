@@ -12,8 +12,10 @@ class Airport
     @weather = weather_class.new
   end
 
-  def hangar
-    @hangar.dup
+  def planes_in_hangar
+    @hangar.each_with_index do |plane, index|
+      puts "Bay #{index + 1}: #{plane}"
+    end
   end
 
   def receive(plane)
@@ -39,10 +41,6 @@ private
   def stormy?
     @weather.stormy
   end
-
-  # def already_flying?(plane)
-  #   plane.landed == false
-  # end
 
   def not_at_that_airport(plane)
     !hangar.include? plane
